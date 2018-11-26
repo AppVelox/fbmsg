@@ -1,12 +1,12 @@
 class Request(object):
-    def __init__(self, obj: str, entry: list):
-        if not isinstance(obj, str):
+    def __init__(self, object: str, entry: list):
+        if not isinstance(object, str):
             raise TypeError('obj must be an instance of str')
         if not isinstance(entry, list):
             raise TypeError('entry must be an instance of list')
         if len(entry) == 0:
             raise ValueError('empty entry list')
-        self.object = obj
+        self.object = object
         self.entries = []
         for entry in entry:
             self.entries.append(Entry(**entry))
@@ -29,7 +29,7 @@ class Entry(object):
 
 
 class Message(object):
-    def __init__(self, sender: dict, recipient: dict, timestamp: int, message: dict):
+    def __init__(self, sender: dict, recipient: dict, timestamp: int, message: dict, *args, **kwargs):
         if not isinstance(sender, dict):
             raise TypeError('sender must be an instance of dict')
         if not isinstance(recipient, dict):
@@ -44,6 +44,3 @@ class Message(object):
         self.mid = message.get('mid')
         self.text = message.get('text')
         self.seq = message.get('seq')
-
-        
-
