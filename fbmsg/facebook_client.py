@@ -2,12 +2,12 @@ import json
 
 import requests
 
-from .models.incoming import Request
+from .models.incoming import Request, Types
 from .models.messages import Message
+from .models.settings import PersistentMenu
 
 
-class MessengerClient:
-
+class FacebookClient:
     def __init__(self, page_token: str = None):
         if not isinstance(page_token, str):
             raise TypeError("page_token must be an instance of str")
@@ -36,16 +36,17 @@ class MessengerClient:
         if 'entry' not in msg_json:
             raise ValueError("Malformed incoming request from Facebook")
         request = Request(**msg_json)
-        # for entry in msg_json['entry']:
-        #     message = IncomingMessage(entry)
-        #
-        #     if message.type == IncomingMessage.TEXT_MESSAGE:
-        #         self.text_message_processor(message)
-        #     elif message.type == IncomingMessage.POSTBACK_MESSAGE:
-        #         self.postback_processor(message)
-        #     else:
-        #         raise ValueError("Unknown message type")
-
+        message = request.entries[0].message
+        if message.type == Types.TEXT_MESSAGE:
+            if not self.text_message_processor:
+                raise AttributeError('text_message_processor not declared')
+            self.text_message_processor(message)
+        elif message.type == Types.POSTBACK_MESSAGE:
+            if not self.postback_processor:
+                raise AttributeError('postback_processor not declared')
+            self.postback_processor(message)
+        else:
+            raise ValueError("Unknown message type")
         return
 
     def send_message(self, recipient_id: int, message: Message):
@@ -53,19 +54,27 @@ class MessengerClient:
             raise TypeError('message must be an instance of Message')
         if not isinstance(recipient_id, int):
             raise TypeError('recipient_id must be an instance of int')
-        resr = self.post_request('messages',
+        resp = self.post_request('messages',
                                  json.dumps({'message': message.to_dict(), 'recipient': {'id': recipient_id}}))
+        return resp
+
+    def set_whitelist(self, domains: list):
+        if not isinstance(domains, list):
+            raise TypeError('domains must be an instance of list')
+        return self.post_request('messenger_profile', json.dumps({'whitelisted_domains': domains}))
+
+    def set_persistent_menu(self, menu: PersistentMenu):
+        if not isinstance(menu, PersistentMenu):
+            raise TypeError('menu must be an instance of PersistentMenu')
+        return self.post_request('messenger_profile', json.dumps({'persistent_menu': menu.to_dict()}))
 
     def post_request(self, endpoint: str, data: str):
         if not isinstance(endpoint, str):
             raise TypeError('endpoint must be an instance of str')
         if not isinstance(data, str):
             raise TypeError('data must be an instance of str')
-        response = requests.post(self.fb_url.format(endpoint), data=data)
+        headers = requests.utils.default_headers()
+        headers['Content-Type'] = 'application/json'
+        response = requests.post(self.fb_url.format(endpoint), data=data, headers=headers)
         response.raise_for_status()
         return json.loads(response.text)
-
-    #
-    #
-    # def set_persistent_menu(self):
-    #     pass

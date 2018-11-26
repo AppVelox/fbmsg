@@ -1,5 +1,10 @@
+class Types:
+    TEXT_MESSAGE = 1
+    POSTBACK_MESSAGE = 2
+
+
 class Request(object):
-    def __init__(self, object: str, entry: list):
+    def __init__(self, object: str, entry: list, *args, **kwargs):
         if not isinstance(object, str):
             raise TypeError('obj must be an instance of str')
         if not isinstance(entry, list):
@@ -13,7 +18,7 @@ class Request(object):
 
 
 class Entry(object):
-    def __init__(self, id: str, time: int, messaging: list):
+    def __init__(self, id: str, time: int, messaging: list, *args, **kwargs):
         if not isinstance(id, str):
             raise TypeError('id must be an instance of str')
         if not isinstance(time, int):
@@ -44,3 +49,15 @@ class Message(object):
         self.mid = message.get('mid')
         self.text = message.get('text')
         self.seq = message.get('seq')
+        self.type = Types.TEXT_MESSAGE
+        quick_reply = message.get('quick_reply')
+        if quick_reply is not None:
+            self.quick_reply = QuickReply(**quick_reply)
+            self.type = Types.POSTBACK_MESSAGE
+
+
+class QuickReply(object):
+    def __init__(self, payload: str, *args, **kwargs):
+        if not isinstance(payload, str):
+            raise TypeError('payload must be an instance of str')
+        self.payload = payload

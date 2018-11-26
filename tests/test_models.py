@@ -1,6 +1,6 @@
 import pytest
 
-from fbmsg.models import QuickReplyButton, QuickReply, Message
+from fbmsg import QuickReplyButton, QuickReply, Message
 
 
 class TestQuickReplies:

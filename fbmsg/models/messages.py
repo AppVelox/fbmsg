@@ -10,6 +10,7 @@ class QuickReplyButton:
 
     def to_dict(self):
         return {
+            "content_type": "text",
             "title": self.title,
             "payload": self.payload
         }
