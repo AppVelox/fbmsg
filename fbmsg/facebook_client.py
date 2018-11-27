@@ -14,7 +14,7 @@ class FacebookClient:
         self.page_token = page_token
         self.text_message_processor = None
         self.postback_processor = None
-        self.fb_url = f'https://graph.zfacebook.com/v{version}/me/{"{}"}?access_token={page_token}'
+        self.fb_url = f'https://graph.facebook.com/v{version}/me/{"{}"}?access_token={page_token}'
         self.timeout = timeout
 
     def register_text_message_processor(self):
@@ -85,7 +85,7 @@ class FacebookClient:
     def send_analytics(self, analytics: Analytics, app_id):
         headers = requests.utils.default_headers()
         headers['Content-Type'] = 'application/json'
-        response = requests.post(f'https://graph.zfacebook.com/{app_id}/activities',
+        response = requests.post(f'https://graph.facebook.com/{app_id}/activities',
                                  data=json.dumps(analytics.to_dict()), headers=headers, timeout=self.timeout)
         response.raise_for_status()
         return json.loads(response.text)
