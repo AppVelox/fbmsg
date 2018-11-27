@@ -10,9 +10,9 @@ class MenuItem(object):
             setattr(self, k, kwargs[k])
 
     def to_dict(self):
-        res = vars(self)
+        res = dict(vars(self))
         if 'call_to_actions' in res:
-            res['call_to_actions'] = [x.to_dict for x in res['call_to_actions']]
+            res['call_to_actions'] = [x.to_dict() for x in res['call_to_actions']]
         return res
 
 
@@ -37,5 +37,22 @@ class PersistentMenu(object):
         return {
             'locale': self.locale,
             'composer_input_disabled': self.composer_input_disabled,
-            'call_to_actions': [x.to_dict for x in self.call_to_actions]
+            'call_to_actions': [x.to_dict() for x in self.call_to_actions]
         }
+
+
+class Analytics(object):
+    def __init__(self, custom_events, page_id, page_scoped_user_id, event='CUSTOM_APP_EVENTS',
+                 advertiser_tracking_enabled=True, application_tracking_enabled=True, extinfo=None):
+        if extinfo is None:
+            extinfo = ['mb1']
+        self.custom_events = custom_events
+        self.page_id = page_id
+        self.page_scoped_user_id = page_scoped_user_id
+        self.event = event
+        self.advertiser_tracking_enabled = advertiser_tracking_enabled
+        self.application_tracking_enabled = application_tracking_enabled
+        self.extinfo = extinfo
+
+    def to_dict(self):
+        return dict(vars(self))

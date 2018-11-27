@@ -4,23 +4,22 @@ import requests
 
 from .models.incoming import Request, Types
 from .models.messages import Message
-from .models.settings import PersistentMenu
 
 
 class FacebookClient:
-    def __init__(self, page_token: str = None):
+    def __init__(self, page_token: str = None, timeout=5, version=2.6):
         if not isinstance(page_token, str):
             raise TypeError("page_token must be an instance of str")
         self.page_token = page_token
         self.text_message_processor = None
         self.postback_processor = None
-        self.fb_url = f'https://graph.facebook.com/v2.6/me/{"{}"}?access_token={page_token}'
+        self.fb_url = f'https://graph.facebook.com/v{version}/me/{"{}"}?access_token={page_token}'
+        self.timeout = timeout
 
     def register_text_message_processor(self):
         def add(processor: function):
             self.message_processor = processor
             return processor
-
         return add
 
     def register_postback_processor(self):
@@ -63,10 +62,12 @@ class FacebookClient:
             raise TypeError('domains must be an instance of list')
         return self.post_request('messenger_profile', json.dumps({'whitelisted_domains': domains}))
 
-    def set_persistent_menu(self, menu: PersistentMenu):
-        if not isinstance(menu, PersistentMenu):
-            raise TypeError('menu must be an instance of PersistentMenu')
-        return self.post_request('messenger_profile', json.dumps({'persistent_menu': menu.to_dict()}))
+    def set_persistent_menu(self, menus: list, get_started_payload: str = 'get_started'):
+        if not isinstance(menus, list):
+            raise TypeError('menus must be an instance of list')
+        return self.post_request('messenger_profile',
+                                 json.dumps({'persistent_menu': [menu.to_dict() for menu in menus],
+                                             "get_started": {"payload": get_started_payload}}))
 
     def post_request(self, endpoint: str, data: str):
         if not isinstance(endpoint, str):
@@ -75,6 +76,6 @@ class FacebookClient:
             raise TypeError('data must be an instance of str')
         headers = requests.utils.default_headers()
         headers['Content-Type'] = 'application/json'
-        response = requests.post(self.fb_url.format(endpoint), data=data, headers=headers)
+        response = requests.post(self.fb_url.format(endpoint), data=data, headers=headers, timeout=self.timeout)
         response.raise_for_status()
         return json.loads(response.text)
