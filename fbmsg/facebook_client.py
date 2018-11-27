@@ -4,6 +4,7 @@ import requests
 
 from .models.incoming import Request, Types
 from .models.messages import Message
+from .models.settings import Analytics
 
 
 class FacebookClient:
@@ -13,17 +14,18 @@ class FacebookClient:
         self.page_token = page_token
         self.text_message_processor = None
         self.postback_processor = None
-        self.fb_url = f'https://graph.facebook.com/v{version}/me/{"{}"}?access_token={page_token}'
+        self.fb_url = f'https://graph.zfacebook.com/v{version}/me/{"{}"}?access_token={page_token}'
         self.timeout = timeout
 
     def register_text_message_processor(self):
-        def add(processor: function):
-            self.message_processor = processor
+        def add(processor):
+            self.text_message_processor = processor
             return processor
+
         return add
 
     def register_postback_processor(self):
-        def add(processor: function):
+        def add(processor):
             self.postback_processor = processor
             return processor
 
@@ -77,5 +79,13 @@ class FacebookClient:
         headers = requests.utils.default_headers()
         headers['Content-Type'] = 'application/json'
         response = requests.post(self.fb_url.format(endpoint), data=data, headers=headers, timeout=self.timeout)
+        response.raise_for_status()
+        return json.loads(response.text)
+
+    def send_analytics(self, analytics: Analytics, app_id):
+        headers = requests.utils.default_headers()
+        headers['Content-Type'] = 'application/json'
+        response = requests.post(f'https://graph.zfacebook.com/{app_id}/activities',
+                                 data=json.dumps(analytics.to_dict()), headers=headers, timeout=self.timeout)
         response.raise_for_status()
         return json.loads(response.text)

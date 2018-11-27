@@ -42,8 +42,8 @@ class PersistentMenu(object):
 
 
 class Analytics(object):
-    def __init__(self, custom_events, page_id, page_scoped_user_id, event='CUSTOM_APP_EVENTS',
-                 advertiser_tracking_enabled=True, application_tracking_enabled=True, extinfo=None):
+    def __init__(self, custom_events: list, page_id: int, page_scoped_user_id: int, event: str = 'CUSTOM_APP_EVENTS',
+                 advertiser_tracking_enabled: int = 1, application_tracking_enabled: int = 1, extinfo: list = None):
         if extinfo is None:
             extinfo = ['mb1']
         self.custom_events = custom_events
