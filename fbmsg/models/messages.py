@@ -69,8 +69,8 @@ class Template:
 
 
 class Message:
-    def __init__(self, text: str, quick_reply: QuickReply = None, attachment=None):
-        if not isinstance(text, str):
+    def __init__(self, text: str = None, quick_reply: QuickReply = None, attachment=None):
+        if text and not isinstance(text, str):
             raise TypeError("Message.text must be an instance of str")
         if quick_reply and not isinstance(quick_reply, QuickReply):
             raise TypeError("Message.quick_reply must be an instance of QuickReply")
@@ -84,7 +84,9 @@ class Message:
         self.quick_reply = quick_reply
 
     def to_dict(self):
-        msg = {"text": self.text}
+        msg = {}
+        if self.text:
+            msg['text'] = self.text
         if self.quick_reply:
             msg['quick_replies'] = self.quick_reply.to_dict()
         if self.attachment:
