@@ -64,7 +64,7 @@ class Template:
             }
         }
         if hasattr(self, 'buttons'):
-            res.update({"buttons": [b.to_dict() for b in self.buttons]})
+            res['payload'].update({"buttons": [b.to_dict() for b in self.buttons]})
         return res
 
 
