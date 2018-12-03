@@ -1,17 +1,19 @@
 class QuickReplyButton:
-    def __init__(self, title: str, type: str, **kwargs):
+    def __init__(self, title: str, payload: str):
         if not isinstance(title, str):
             raise TypeError("QuickReplyButton.title must be an instance of str")
-        if not isinstance(type, str):
-            raise TypeError("QuickReplyButton.type must be an instance of str")
+        if not isinstance(payload, str):
+            raise TypeError("QuickReplyButton.payload must be an instance of str")
 
         self.title = title
-        self.type = type
-        for k in kwargs:
-            setattr(self, k, kwargs[k])
+        self.payload = payload
 
     def to_dict(self):
-        return dict(vars(self))
+        return {
+            "content_type": "text",
+            "title": self.title,
+            "payload": self.payload
+        }
 
 
 class QuickReply:
@@ -28,7 +30,7 @@ class QuickReply:
 
 
 class Message:
-    def __init__(self, text: str, quick_reply: QuickReply = None):
+    def __init__(self, text: str, quick_reply: QuickReply=None):
         if not isinstance(text, str):
             raise TypeError("Message.text must be an instance of str")
         if quick_reply and not isinstance(quick_reply, QuickReply):
