@@ -34,26 +34,34 @@ class Entry(object):
 
 
 class Message(object):
-    def __init__(self, sender: dict, recipient: dict, timestamp: int, message: dict, *args, **kwargs):
+    def __init__(self, sender: dict, recipient: dict, timestamp: int, message: dict = None, postback: dict = None,
+                 *args, **kwargs):
         if not isinstance(sender, dict):
             raise TypeError('sender must be an instance of dict')
         if not isinstance(recipient, dict):
             raise TypeError('recipient must be an instance of dict')
         if not isinstance(timestamp, int):
             raise TypeError('timestamp must be an instance of int')
-        if not isinstance(message, dict):
-            raise TypeError('message must be an instance of dict')
+        if message:
+            if not isinstance(message, dict):
+                raise TypeError('message must be an instance of dict')
+            self.mid = message.get('mid')
+            self.text = message.get('text')
+            self.seq = message.get('seq')
+            quick_reply = message.get('quick_reply')
+            if quick_reply is not None:
+                self.quick_reply = QuickReply(**quick_reply)
+                self.type = Types.POSTBACK_MESSAGE
+        if postback:
+            if not isinstance(postback, dict):
+                raise TypeError('postback must be an instance of dict')
+            self.type = Types.POSTBACK_MESSAGE
+            self.text = postback.get('title')
+            self.payload = postback.get('payload')
         self.sender_id = sender['id']
         self.recipient_id = recipient['id']
         self.timestamp = timestamp
-        self.mid = message.get('mid')
-        self.text = message.get('text')
-        self.seq = message.get('seq')
         self.type = Types.TEXT_MESSAGE
-        quick_reply = message.get('quick_reply')
-        if quick_reply is not None:
-            self.quick_reply = QuickReply(**quick_reply)
-            self.type = Types.POSTBACK_MESSAGE
 
 
 class QuickReply(object):
