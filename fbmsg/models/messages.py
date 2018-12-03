@@ -1,12 +1,12 @@
 class QuickReplyButton:
-    def __init__(self, title: str, content_type: str, **kwargs):
+    def __init__(self, title: str, type: str, **kwargs):
         if not isinstance(title, str):
             raise TypeError("QuickReplyButton.title must be an instance of str")
-        if not isinstance(content_type, str):
-            raise TypeError("QuickReplyButton.content_type must be an instance of str")
+        if not isinstance(type, str):
+            raise TypeError("QuickReplyButton.type must be an instance of str")
 
         self.title = title
-        self.content_type = content_type
+        self.type = type
         for k in kwargs:
             setattr(self, k, kwargs[k])
 
