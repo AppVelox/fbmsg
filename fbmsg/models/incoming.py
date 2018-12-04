@@ -42,6 +42,7 @@ class Message(object):
             raise TypeError('recipient must be an instance of dict')
         if not isinstance(timestamp, int):
             raise TypeError('timestamp must be an instance of int')
+        self.type = Types.TEXT_MESSAGE
         if message:
             if not isinstance(message, dict):
                 raise TypeError('message must be an instance of dict')
@@ -61,7 +62,6 @@ class Message(object):
         self.sender_id = sender['id']
         self.recipient_id = recipient['id']
         self.timestamp = timestamp
-        self.type = Types.TEXT_MESSAGE
 
 
 class QuickReply(object):
