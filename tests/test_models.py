@@ -1,7 +1,7 @@
 import pytest
 
-from fbmsg.models.messages import QuickReply, QuickReplyButton, Message
-from fbmsg.models.incoming import Request, Entry, Message as iMessage, QuickReply as iQuickReply
+from fbmsg.models.incoming import Request, Entry, Message as iMessage
+from fbmsg.models.messages import QuickReply, QuickReplyButton, Message, Button, Template
 from fbmsg.models.settings import Analytics, MenuItem, PersistentMenu
 
 
@@ -26,6 +26,32 @@ class TestQuickReplies:
             {'content_type': 'text', "title": "title", "payload": "payload"},
             {'content_type': 'text', "title": "title", "payload": "payload"}
         ]
+
+
+class TestTemplates:
+    def test_Button(self):
+        button = Button('test', 'test')
+        with pytest.raises(TypeError):
+            Button(1, 'test')
+        with pytest.raises(TypeError):
+            Button('test', 1)
+        assert button.to_dict() == {'type': 'test', 'title': 'test'}
+
+    def test_Template(self):
+        button = Button('test', 'test')
+        t = Template('test', 'test', buttons=[button])
+        with pytest.raises(TypeError):
+            Template(1, 'test')
+        with pytest.raises(TypeError):
+            Template('test', 1)
+        assert t.to_dict() == {
+            "type": "template",
+            "payload": {
+                "template_type": 'test',
+                "text": 'test',
+                "buttons": [{'type': 'test', 'title': 'test'}]
+            }
+        }
 
 
 class TestMessage:
@@ -63,12 +89,6 @@ class TestMessage:
 
 
 class TestIncoming:
-    def test_QuickReply(self):
-        with pytest.raises(TypeError):
-            iQuickReply(1)
-        qr = iQuickReply('test')
-        assert qr.payload == 'test'
-
     def test_Message(self):
         with pytest.raises(TypeError):
             iMessage('', {}, 1, {})
@@ -78,9 +98,14 @@ class TestIncoming:
             iMessage({}, {}, '', {})
         with pytest.raises(TypeError):
             iMessage({}, {}, 1, 1)
+        with pytest.raises(TypeError):
+            iMessage({}, {}, 1, {}, 1, {})
+        with pytest.raises(TypeError):
+            iMessage({}, {}, 1, {}, {}, 1)
         m = iMessage(**{'sender': {'id': '1169720893152609'}, 'recipient': {'id': '2278924455579804'},
                         'timestamp': 1543226751645,
-                        'message': {'mid': 'test', 'seq': 15, 'text': 'test', 'quick_reply': {'payload': 'test'}}})
+                        'message': {'mid': 'test', 'seq': 15, 'text': 'test', 'quick_reply': {'payload': 'test'}},
+                        'referral': {'ref': 'asfasdf', 'source': 'SHORTLINK', 'type': 'OPEN_THREAD'}})
 
     def test_Entry(self):
         with pytest.raises(TypeError):

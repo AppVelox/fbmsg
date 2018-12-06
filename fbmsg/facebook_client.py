@@ -14,6 +14,7 @@ class FacebookClient:
         self.page_token = page_token
         self.text_message_processor = None
         self.postback_processor = None
+        self.referral_processor = None
         self.fb_url = f'https://graph.facebook.com/v{version}/me/{"{}"}?access_token={page_token}'
         self.timeout = timeout
 
@@ -31,6 +32,12 @@ class FacebookClient:
 
         return add
 
+    def register_referral_processor(self):
+        def add(processor):
+            self.referral_processor = processor
+            return processor
+        return add
+
     def process_json(self, msg_json: dict):
         if not isinstance(msg_json, dict):
             raise TypeError('msg_json must be an instance of dict')
@@ -46,6 +53,9 @@ class FacebookClient:
             if not self.postback_processor:
                 raise AttributeError('postback_processor not declared')
             self.postback_processor(message)
+        elif message.type == Types.REFERRAL_MESSAGE:
+            if self.referral_processor:
+                self.referral_processor(message)
         else:
             raise ValueError("Unknown message type")
         return
