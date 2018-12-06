@@ -59,6 +59,7 @@ class Message(object):
             self.type = Types.POSTBACK_MESSAGE
             self.text = postback.get('title')
             self.payload = postback.get('payload')
+            self.referral = postback.get('referral')
         self.sender_id = sender['id']
         self.recipient_id = recipient['id']
         self.timestamp = timestamp
