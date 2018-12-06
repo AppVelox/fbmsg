@@ -34,6 +34,12 @@ class Entry(object):
             self.message = Message(**message)
 
 
+class Referral(object):
+    def __init__(self, *args, **kwargs):
+        for k in kwargs:
+            setattr(self, k, kwargs[k])
+
+
 class Message(object):
     def __init__(self, sender: dict, recipient: dict, timestamp: int, message: dict = None, postback: dict = None,
                  referral: dict = None, *args, **kwargs):
@@ -47,7 +53,7 @@ class Message(object):
         if referral:
             if not isinstance(referral, dict):
                 raise TypeError('referral must be an instance of dict')
-            self.referral = referral
+            self.referral = Referral(**referral)
             self.type = Types.REFERRAL_MESSAGE
         if message:
             if not isinstance(message, dict):
