@@ -1,6 +1,7 @@
 class Types:
     TEXT_MESSAGE = 1
     POSTBACK_MESSAGE = 2
+    REFERRAL_MESSAGE = 3
 
 
 class Request(object):
@@ -35,7 +36,7 @@ class Entry(object):
 
 class Message(object):
     def __init__(self, sender: dict, recipient: dict, timestamp: int, message: dict = None, postback: dict = None,
-                 *args, **kwargs):
+                 referral: dict = None, *args, **kwargs):
         if not isinstance(sender, dict):
             raise TypeError('sender must be an instance of dict')
         if not isinstance(recipient, dict):
@@ -43,6 +44,11 @@ class Message(object):
         if not isinstance(timestamp, int):
             raise TypeError('timestamp must be an instance of int')
         self.type = Types.TEXT_MESSAGE
+        if referral:
+            if not isinstance(referral, dict):
+                raise TypeError('referral must be an instance of dict')
+            self.referral = referral
+            self.type = Types.REFERRAL_MESSAGE
         if message:
             if not isinstance(message, dict):
                 raise TypeError('message must be an instance of dict')
@@ -51,7 +57,7 @@ class Message(object):
             self.seq = message.get('seq')
             quick_reply = message.get('quick_reply')
             if quick_reply is not None:
-                self.quick_reply = QuickReply(**quick_reply)
+                self.payload = quick_reply.get('payload')
                 self.type = Types.POSTBACK_MESSAGE
         if postback:
             if not isinstance(postback, dict):
@@ -63,10 +69,3 @@ class Message(object):
         self.sender_id = sender['id']
         self.recipient_id = recipient['id']
         self.timestamp = timestamp
-
-
-class QuickReply(object):
-    def __init__(self, payload: str, *args, **kwargs):
-        if not isinstance(payload, str):
-            raise TypeError('payload must be an instance of str')
-        self.payload = payload
